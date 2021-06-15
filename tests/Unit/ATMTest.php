@@ -28,4 +28,9 @@ class ATMTest extends TestCase
     {
         $this->assertTrue(false, "test not written");
     }
+
+    public function test_it_displays_the_total_cash_held_on_the_first_line()
+    {
+        $this->assertTrue(false, "test not written");
+    }
 }
