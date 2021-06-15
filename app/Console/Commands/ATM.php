@@ -6,6 +6,9 @@ use Illuminate\Console\Command;
 
 class ATM extends Command
 {
+    public const ACCOUNT_ERR = 'ACCOUNT_ERR';
+    public const FUNDS_ERR = 'FUNDS_ERR';
+    public const ATM_ERR = 'ATM_ERR';
     /**
      * The name and signature of the console command.
      *
