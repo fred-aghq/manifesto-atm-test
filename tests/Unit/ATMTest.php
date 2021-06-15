@@ -18,4 +18,14 @@ class ATMTest extends TestCase
     {
         $this->assertTrue(false, "test not written");
     }
+
+    public function test_it_does_not_dispense_funds_if_pin_is_incorrect()
+    {
+        $this->assertTrue(false, "test not written");
+    }
+
+    public function test_it_does_not_expose_customer_balance_if_pin_is_incorrect()
+    {
+        $this->assertTrue(false, "test not written");
+    }
 }
