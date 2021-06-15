@@ -14,7 +14,7 @@ class ATM extends Command
      *
      * @var string
      */
-    protected $signature = 'manfiesto:atm';
+    protected $signature = 'manifesto:atm';
 
     /**
      * The console command description.
