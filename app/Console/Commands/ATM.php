@@ -58,15 +58,18 @@ class ATM extends Command
             $this->line($this->service->getTotalCashAvailable());
             $this->line('');
 
-            $inputAccountNumber = $this->ask('Enter account number');
+            if (!$this->service->loggedIn())
+            {
+                $inputAccountNumber = $this->ask('Enter account number');
 
-            if (empty($inputAccountNumber)) {
-                return 0;
+                if (empty($inputAccountNumber)) {
+                    return 0;
+                }
+
+                $inputPin = $this->secret('Enter PIN');
+
+                $this->service->login($inputAccountNumber, $inputPin);
             }
-
-            $inputPin = $this->secret('Enter PIN');
-
-            $this->service->login($inputAccountNumber, $inputPin);
 
             $this->line($this->balanceEnquiry());
 
@@ -86,8 +89,10 @@ class ATM extends Command
                     break;
                 case 'W':
                     $this->withdrawCash();
+                    $this->line($this->balanceEnquiry());
                     break;
                 case 'D':
+                    $this->service->logout();
                     break;
                 case 'E':
                     return 0;
@@ -97,13 +102,12 @@ class ATM extends Command
 
     private function balanceEnquiry()
     {
-        return $this->service->getAccountBalance() . ' ' . $this->service->getOverdraftAvailability();
+        return $this->service->getCustomerBalance() . ' ' . $this->service->getOverdraftAvailability();
     }
 
     private function withdrawCash()
     {
         $amount = $this->ask('Withdrawal amount');
         $this->service->withdrawCash($amount);
-        return 0;
     }
 }

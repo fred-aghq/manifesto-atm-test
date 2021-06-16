@@ -46,6 +46,16 @@ class MachineService implements MachineServiceInterface
         return true;
     }
 
+    public function logout(): void
+    {
+        $this->customer = null;
+    }
+
+    public function loggedIn(): bool
+    {
+        return !is_null($this->customer);
+    }
+
     public function getTotalCashAvailable(): int
     {
         return $this->getMachine()->total_cash;
@@ -68,6 +78,16 @@ class MachineService implements MachineServiceInterface
         }
 
         return 0;
+    }
+
+    public function getCustomerBalance(): int
+    {
+        return $this->customer->account_balance;
+    }
+
+    public function getOverdraftAvailability(): int
+    {
+        return $this->customer->overdraft_available;
     }
 
     private function validateWithdrawal(int $amount): bool

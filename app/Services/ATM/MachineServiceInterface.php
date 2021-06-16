@@ -16,4 +16,6 @@ interface MachineServiceInterface
     function withdrawCash(int $amount);
 
     function login(int $accountNumber, int $pin): bool;
+
+    function getCustomerBalance(): int;
 }
