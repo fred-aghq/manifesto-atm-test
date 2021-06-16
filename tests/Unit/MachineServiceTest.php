@@ -11,7 +11,7 @@ use App\Repositories\CustomerRepository;
 use App\Repositories\MachineRepository;
 use App\Services\ATM\MachineServiceInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
@@ -19,12 +19,16 @@ class MachineServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $unit;
-
     protected function setUp(): void
     {
         parent::setUp();
-        Machine::factory()->create();
+    }
+
+    protected function tearDown(): void
+    {
+        DB::table('machines')->truncate();
+        DB::table('customers')->truncate();
+        parent::tearDown();
     }
 
     /*
