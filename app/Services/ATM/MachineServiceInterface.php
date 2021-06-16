@@ -7,7 +7,7 @@ namespace App\Services\ATM;
 interface MachineServiceInterface
 {
     public function getTotalCashAvailable(): int;
-    public function withdrawCash();
+    public function withdrawCash(int $amount);
     public function getAccountBalance(): int;
     public function getOverdraftAvailability(): int;
     public function validatePin(int $pin);
