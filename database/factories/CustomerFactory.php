@@ -22,7 +22,7 @@ class CustomerFactory extends Factory
     public function definition()
     {
         return [
-            'account_number' => $this->faker->unique()->bankAccountNumber,
+            'account_number' => $this->faker->unique()->randomNumber(8),
             'pin' => $this->faker->randomNumber(4),
             'account_balance' => $this->faker->numberBetween(50, 5000),
             'overdraft_available' => $this->faker->randomElement([0, 100, 200, 500]),
