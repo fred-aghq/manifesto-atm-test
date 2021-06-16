@@ -1,5 +1,7 @@
 <?php
 
+use App\Providers\ATM\MachineServiceProvider;
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Manifesto ATM Test'),
 
     /*
     |--------------------------------------------------------------------------
@@ -174,6 +176,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
+        // Custom App Providers
+        MachineServiceProvider::class,
 
     ],
 
