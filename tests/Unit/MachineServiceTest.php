@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use App\Exceptions\AccountErrorException;
+use App\Exceptions\Customer\FundsErrorException;
 use App\Exceptions\Customer\InvalidAccountNumberException;
-use App\Exceptions\Customer\InvalidPinException;
 use App\Exceptions\Machine\MachineErrorException;
 use App\Models\Customer;
 use App\Models\Machine;
@@ -75,7 +75,7 @@ class MachineServiceTest extends TestCase
         // The exact amount required is dispensed
         $this->assertEquals($withdrawalAmount, $withdrawnAmount);
 
-        // And the ATM returns the
+        // And the ATM correctly adjusts its total cash
         $this->assertEquals($totalCash - $withdrawalAmount, $machine->refresh()->total_cash);
     }
 
@@ -93,7 +93,7 @@ class MachineServiceTest extends TestCase
         $customer = Customer::factory()->make([
             'account_number' => 12345678,
             'pin' => 1234,
-            'account_balance' => ($machine->total_cash + 100) // sufficient funds
+            'account_balance' => ($machine->total_cash + 100) // sufficient funds but more than the ATM can provide
         ]);
 
         $customer->save();
@@ -129,9 +129,10 @@ class MachineServiceTest extends TestCase
     public function test_it_does_not_continue_if_account_number_not_valid()
     {
         $this->expectException(InvalidAccountNumberException::class);
-        $machine = Machine::factory()->create();
+        Machine::factory()->create();
         $customer = Customer::factory()->make([
             'account_number' => 99999999,
+            'pin' => 4444,
         ]);
         $customer->save();
 
@@ -150,6 +151,7 @@ class MachineServiceTest extends TestCase
 
         $customer = Customer::factory()->make([
             'account_number' => 99999999,
+            'pin' => 1111,
         ]);
         $customer->save();
 
@@ -163,10 +165,138 @@ class MachineServiceTest extends TestCase
         $this->mock(CustomerRepository::class);
 
         $unit = $this->app->make(MachineServiceInterface::class);
-        $unit->login(11111111, 5555);
+        $unit->login(11111111, 9999);
         $this->assertEquals($initialTotalCash, $this->machine->refresh()->total_cash);
 
         $this->expectException(AccountErrorException::class);
         $unit->withdraw(1000);
+    }
+
+    public function test_it_allows_going_overdrawn_when_customer_has_one()
+    {
+        $machine = Machine::factory()->create();
+        $customer = Customer::factory()->make([
+            'account_number' => 12345678,
+            'pin' => 1234,
+            'overdraft_available' => 100,
+            'account_balance' => 100,
+        ]);
+
+        $customer->save();
+
+        $withdrawalAmount = 200;
+
+        $this->mock(
+            MachineRepository::class,
+            function (MockInterface $mock) use ($machine) {
+                $mock->shouldReceive('getMachine')
+                    ->andReturn($machine);
+            });
+
+        $this->mock(
+            CustomerRepository::class,
+            function (MockInterface $mock) use ($customer) {
+                $mock->shouldReceive('findByAccountNumber')
+                    ->andReturn($customer);
+            }
+        );
+
+        $unit = $this->app->make(MachineServiceInterface::class);
+
+        // Given that I log in with a valid account and PIN
+        $unit->login(12345678, 1234);
+
+        // When I withdraw more cash than i have in my balance, but within my overdraft
+        $withdrawnAmount = $unit->withdrawCash($withdrawalAmount);
+
+        // The exact amount required is dispensed
+        $this->assertEquals($withdrawalAmount, $withdrawnAmount);
+
+        // And my balance is the correct negative amount
+        $this->assertEquals(-100, $customer->refresh()->account_balance);
+    }
+
+    public function test_it_does_not_dispense_funds_if_it_exceeds_overdraft()
+    {
+        $machine = Machine::factory()->create();
+        $customer = Customer::factory()->make([
+            'account_number' => 12345678,
+            'pin' => 1234,
+            'overdraft_available' => 100,
+            'account_balance' => 0,
+        ]);
+
+        $customer->save();
+
+        $withdrawalAmount = 200;
+
+        $this->mock(
+            MachineRepository::class,
+            function (MockInterface $mock) use ($machine) {
+                $mock->shouldReceive('getMachine')
+                    ->andReturn($machine);
+            });
+
+        $this->mock(
+            CustomerRepository::class,
+            function (MockInterface $mock) use ($customer) {
+                $mock->shouldReceive('findByAccountNumber')
+                    ->andReturn($customer);
+            }
+        );
+
+        $unit = $this->app->make(MachineServiceInterface::class);
+
+        // Given that I log in with a valid account and PIN
+        $unit->login(12345678, 1234);
+
+        $this->expectException(FundsErrorException::class);
+
+        // When I withdraw more than my overdraft allows
+        $withdrawnAmount = $unit->withdrawCash($withdrawalAmount);
+
+        // The expected exception is thrown
+    }
+
+    public function test_it_does_not_dispense_funds_if_it_has_no_overdraft()
+    {
+        $machine = Machine::factory()->create();
+        $customer = Customer::factory()->make([
+            'account_number' => 12345678,
+            'pin' => 1234,
+            'overdraft_available' => 0,
+            'account_balance' => 0,
+        ]);
+
+        $customer->save();
+
+        $withdrawalAmount = 200;
+
+        $this->mock(
+            MachineRepository::class,
+            function (MockInterface $mock) use ($machine) {
+                $mock->shouldReceive('getMachine')
+                    ->andReturn($machine);
+            });
+
+        $this->mock(
+            CustomerRepository::class,
+            function (MockInterface $mock) use ($customer) {
+                $mock->shouldReceive('findByAccountNumber')
+                    ->andReturn($customer);
+            }
+        );
+
+        $unit = $this->app->make(MachineServiceInterface::class);
+
+        // Given that I log in with a valid account and PIN
+        $unit->login(12345678, 1234);
+
+        $this->expectException(FundsErrorException::class);
+
+        // When I attempt to withdraw with no available funds
+        $unit->withdrawCash($withdrawalAmount);
+
+        // The expected exception is thrown
     }
 }
