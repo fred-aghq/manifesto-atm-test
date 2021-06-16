@@ -2,9 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Console\Commands\ATM;
 use App\Models\Customer;
-use App\Services\ATM\MachineService;
 use Cassandra\Custom;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,14 +19,6 @@ class CustomerTest extends TestCase
         $customerBalance = 500;
         $customerOverdraft = 100;
         $withdrawalAmount = 100;
-
-        $customer = Customer::factory([
-            'account_number' => $accountNumber,
-            'pin' => $pin,
-            'account_balance' => $customerBalance,
-            'overdraft_available' => $customerOverdraft,
-        ])
-            ->create();
 
         $this->artisan('manifesto:atm')
             ->expectsOutput($cashAvailable)
@@ -49,7 +39,10 @@ class CustomerTest extends TestCase
             ->expectsQuestion('Withdrawal amount', $withdrawalAmount)
             ->assertExitCode(0);
 
-        $this->assertEquals(($customerBalance - $withdrawalAmount), $customer->refresh()->accountBalance);
+        $customer = Customer::first();
+
+        // Customer balance now reflects new amount after withdrawal
+        $this->assertEquals(($customerBalance - $withdrawalAmount), $customer->accountBalance);
     }
 
     /**
@@ -65,13 +58,7 @@ class CustomerTest extends TestCase
         $customerOverdraft = 100;
         $withdrawalAmount = 700;
 
-        $customer = Customer::factory([
-            'account_number' => $accountNumber,
-            'pin' => $pin,
-            'account_balance' => $customerBalance,
-            'overdraft_available' => $customerOverdraft,
-        ])
-            ->create();
+        $customer = Customer::first();
 
         $this->artisan('manifesto:atm')
             ->expectsOutput($cashAvailable)
@@ -92,6 +79,7 @@ class CustomerTest extends TestCase
             ->expectsQuestion('Withdrawal amount', $withdrawalAmount)
             ->assertExitCode('FUNDS_ERR');
 
-        $this->assertEquals(($customerBalance - $withdrawalAmount), $customer->refresh()->accountBalance);
+        // Customer balance has not changed
+        $this->assertEquals($customerBalance, $customer->accountBalance);
     }
 }
