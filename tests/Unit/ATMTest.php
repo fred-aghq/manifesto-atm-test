@@ -2,10 +2,16 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use App\Console\Commands\ATM;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\CreatesApplication;
+use Tests\TestCase;
 
 class ATMTest extends TestCase
 {
+    use CreatesApplication;
+    use RefreshDatabase;
+
     /**
      * The ATM cannot dispense more money than it holds.
      * The customer cannot withdraw more funds then they have access to.
@@ -16,7 +22,7 @@ class ATMTest extends TestCase
 
     public function test_it_does_not_dispense_more_money_than_it_holds()
     {
-        $this->assertTrue(false, "test not written");
+
     }
 
     public function test_it_does_not_dispense_funds_if_pin_is_incorrect()
