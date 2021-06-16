@@ -15,7 +15,6 @@ class CreateCustomersTable extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->unsignedBigInteger('account_number');
             $table->unsignedInteger('pin');
             $table->unsignedInteger('overdraft_available');
