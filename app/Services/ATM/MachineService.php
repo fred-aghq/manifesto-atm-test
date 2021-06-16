@@ -89,7 +89,8 @@ class MachineService implements MachineServiceInterface
             'account_number' => [
                 'required',
                 'bail',
-                'size:8',
+                'numeric',
+                'digits:8',
                 'exists:customers,account_number'
             ],
         ]);
@@ -103,7 +104,8 @@ class MachineService implements MachineServiceInterface
             'pin' => [
                 'required',
                 'bail',
-                'size:4',
+                'numeric',
+                'digits:4',
                 new ValidPin($customer),
             ],
         ]);
