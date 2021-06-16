@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMachineTable extends Migration
+class CreateCustomersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,13 @@ class CreateMachineTable extends Migration
      */
     public function up()
     {
-        Schema::create('machine', function (Blueprint $table) {
+        Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('total_cash');
+            $table->timestamps();
+            $table->unsignedBigInteger('account_number');
+            $table->unsignedInteger('pin');
+            $table->unsignedInteger('overdraft_available');
+            $table->integer('account_balance');
         });
     }
 
@@ -26,6 +30,6 @@ class CreateMachineTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('machine');
+        Schema::dropIfExists('customers');
     }
 }
