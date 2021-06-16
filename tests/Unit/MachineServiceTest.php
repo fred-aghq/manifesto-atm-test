@@ -57,7 +57,7 @@ class MachineServiceTest extends TestCase
         $unit = App::make(MachineServiceInterface::class);
 
         $unit->login($customer->account_number, $customer->pin);
-        $unit->withdrawCash($withdrawalAmount);
+        $this->assertTrue($unit->withdrawCash($withdrawalAmount));
         $this->assertEquals($totalCash - $withdrawalAmount, $machine->refresh()->total_cash);
     }
 
@@ -66,14 +66,37 @@ class MachineServiceTest extends TestCase
         $totalCash = 200;
 
         // Given that the machine has a low amount of money
-        $machine = Machine::first();
-        $machine->total_cash = $totalCash;
-        $machine->save();
+        $machine = Machine::factory()->create([
+            'total_cash' => $totalCash,
+        ]);
+
+        $customer = Customer::factory()->create([
+            'account_balance' => $machine->total_cash + 100 // sufficient funds
+        ]);
+
+        $this->mock(
+            MachineRepository::class,
+            function (MockInterface $mock) use ($machine) {
+                $mock->shouldReceive('getMachine')
+                    ->andReturn($machine);
+            });
+
+        $this->mock(
+            CustomerRepository::class,
+            function (MockInterface $mock) use ($customer) {
+                $mock->shouldReceive('findByAccountNumber')
+                    ->andReturn($customer);
+            }
+        );
 
         // When I try to withdraw more cash than is available, then a Machine Error Exception is thrown
         $this->expectException(MachineErrorException::class);
 
         $unit = App::make(MachineServiceInterface::class);
+
+
+
+        $unit->login($customer->account_number, $customer->pin);
         $unit->withdrawCash(($machine->total_cash + 100));
 
         // And the machine's total cash does not change.
