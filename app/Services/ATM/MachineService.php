@@ -6,6 +6,12 @@ use App\Exceptions\Customer\FundsErrorException;
 use App\Exceptions\Customer\InvalidPinException;
 use App\Exceptions\Customer\InvalidAccountNumberException;
 use App\Exceptions\Machine\MachineErrorException;
+use App\Models\Customer;
+use App\Models\Machine;
+use App\Models\Machine as MachineModel;
+use App\Repositories\CustomerRepository;
+use App\Repositories\MachineRepository;
+use Orkhanahmadov\EloquentRepository\EloquentRepository;
 
 class MachineService implements MachineServiceInterface
 {
@@ -13,6 +19,15 @@ class MachineService implements MachineServiceInterface
     public const FUNDS_ERR = 'FUNDS_ERR';
     public const ATM_ERR = 'ATM_ERR';
     public const WITHDRAWAL_SUCCESS = 'WITHDRAWAL_SUCCESS';
+
+    private CustomerRepository $customerRepo;
+    private MachineRepository $machineRepo;
+
+    public function __construct(MachineRepository $machineRepository, CustomerRepository $customerRepository)
+    {
+        $this->machineRepo = $machineRepository;
+        $this->customerRepo = $customerRepository;
+    }
 
     public function withdrawCash(int $amount){
         $this->validateWithdrawal($amount);
@@ -30,8 +45,9 @@ class MachineService implements MachineServiceInterface
     public function validatePin(int $pin) {
         throw new InvalidPinException();
     }
+
     public function validateAccountNumber(int $accountNumber) {
-        throw new InvalidAccountNumberException();
+
     }
 
     public function validateLogin(int $accountNumber, int $pin) {
@@ -43,8 +59,11 @@ class MachineService implements MachineServiceInterface
 
     public function validateWithdrawal(int $amount)
     {
+        if ($this->machineRepo->getMachine()->total_cash < $amount) {
+            throw new MachineErrorException();
+        }
+
         throw new FundsErrorException();
-        throw new MachineErrorException();
     }
 
     public function getTotalCashAvailable(): int
