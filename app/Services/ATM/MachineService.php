@@ -59,7 +59,7 @@ class MachineService implements MachineServiceInterface
 
     public function validateWithdrawal(int $amount)
     {
-        if ($this->getTotalCashAvailable < $amount) {
+        if ($this->getTotalCashAvailable() < $amount) {
             throw new MachineErrorException();
         }
 
