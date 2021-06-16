@@ -96,7 +96,7 @@ class ATM extends Command
                     break;
                 case 'W':
                     $this->withdrawCash();
-                    $this->line($this->balanceEnquiry());
+                    $this->line($this->service->getCustomerBalance());
                     break;
                 case 'D':
                     $this->service->logout();
