@@ -2,7 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Customer;
+use App\Models\Machine;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +16,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        if (Machine::all()->count() > 0) {
+            DB::table((new Machine())->getTable())->truncate();
+        }
+
+        Machine::factory()->create();
     }
 }

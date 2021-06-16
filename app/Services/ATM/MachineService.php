@@ -4,6 +4,7 @@ namespace App\Services\ATM;
 
 use App\Exceptions\Customer\FundsErrorException;
 use App\Exceptions\Customer\InvalidPinException;
+use App\Exceptions\Customer\InvalidAccountNumberException;
 use App\Exceptions\Machine\MachineErrorException;
 
 class MachineService implements MachineServiceInterface
