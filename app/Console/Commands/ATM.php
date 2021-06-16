@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use App\Exceptions\Customer\InvalidAccountNumberException;
 use App\Exceptions\Customer\InvalidPinException;
+use App\Models\Machine;
 use App\Services\ATM\MachineService;
 use App\Services\ATM\MachineServiceInterface;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 /**
  * The CLI entrypoint for the ATM service.
@@ -54,6 +56,9 @@ class ATM extends Command
      */
     public function handle()
     {
+        if (Machine::all()->count() < 1) {
+            $this->initialiseMachine();
+        }
         do {
             $this->line($this->service->getTotalCashAvailable());
             $this->line('');
@@ -83,6 +88,8 @@ class ATM extends Command
                 ]
             );
 
+            $action = Str::upper($action);
+
             switch ($action) {
                 case 'B':
                     $this->balanceEnquiry();
@@ -100,14 +107,30 @@ class ATM extends Command
         } while (true);
     }
 
-    private function balanceEnquiry()
+    private function balanceEnquiry(): string
     {
-        return $this->service->getCustomerBalance() . ' ' . $this->service->getOverdraftAvailability();
+        return (string)$this->service->getCustomerBalance() . ' ' . (string)$this->service->getOverdraftAvailability();
     }
 
-    private function withdrawCash()
+    private function withdrawCash(): void
     {
         $amount = $this->ask('Withdrawal amount');
-        $this->service->withdrawCash($amount);
+        $amountWithdrawn = $this->service->withdrawCash($amount);
+        $this->line($amountWithdrawn);
+    }
+
+    private function initialiseMachine(): bool
+    {
+        $totalCash = $this->ask('Initialise ATM total cash');
+
+        if (!is_numeric($totalCash)) {
+            $this->error('Invalid value');
+            return false;
+        }
+
+        $machine = new Machine();
+        $machine->total_cash = floor($totalCash);
+        $machine->save();
+        return true;
     }
 }
