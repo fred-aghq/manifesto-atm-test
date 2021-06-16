@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Exceptions\AccountErrorException;
 use App\Exceptions\Customer\InvalidAccountNumberException;
 use App\Exceptions\Customer\InvalidPinException;
 use App\Exceptions\Machine\MachineErrorException;
@@ -37,8 +38,13 @@ class MachineServiceTest extends TestCase
 
     public function test_it_only_dispenses_the_exact_amounts_required()
     {
-        $machine = Machine::first();
-        $customer = Customer::factory()->create();
+        $machine = Machine::factory()->create();
+        $customer = Customer::factory()->make([
+            'account_number' => 12345678,
+            'pin' => 1234,
+        ]);
+
+        $customer->save();
 
         $totalCash = $machine->total_cash;
         $withdrawalAmount = 100;
@@ -58,10 +64,18 @@ class MachineServiceTest extends TestCase
             }
         );
 
-        $unit = App::make(MachineServiceInterface::class);
+        $unit = $this->app->make(MachineServiceInterface::class);
 
-        $unit->login($customer->account_number, $customer->pin);
-        $this->assertTrue($unit->withdrawCash($withdrawalAmount));
+        // Given that I log in with a valid account and PIN
+        $unit->login(12345678, 1234);
+
+        // When I withdraw cash
+        $withdrawnAmount = $unit->withdrawCash($withdrawalAmount);
+
+        // The exact amount required is dispensed
+        $this->assertEquals($withdrawalAmount, $withdrawnAmount);
+
+        // And the ATM returns the
         $this->assertEquals($totalCash - $withdrawalAmount, $machine->refresh()->total_cash);
     }
 
@@ -70,13 +84,19 @@ class MachineServiceTest extends TestCase
         $totalCash = 200;
 
         // Given that the machine has a low amount of money
-        $machine = Machine::factory()->create([
+        $machine = Machine::factory()->make([
             'total_cash' => $totalCash,
         ]);
 
-        $customer = Customer::factory()->create([
-            'account_balance' => $machine->total_cash + 100 // sufficient funds
+        $machine->save();
+
+        $customer = Customer::factory()->make([
+            'account_number' => 12345678,
+            'pin' => 1234,
+            'account_balance' => ($machine->total_cash + 100) // sufficient funds
         ]);
+
+        $customer->save();
 
         $this->mock(
             MachineRepository::class,
@@ -93,12 +113,10 @@ class MachineServiceTest extends TestCase
             }
         );
 
+        $unit = $this->app->make(MachineServiceInterface::class);
+
         // When I try to withdraw more cash than is available, then a Machine Error Exception is thrown
         $this->expectException(MachineErrorException::class);
-
-        $unit = App::make(MachineServiceInterface::class);
-
-
 
         $unit->login($customer->account_number, $customer->pin);
         $unit->withdrawCash(($machine->total_cash + 100));
@@ -111,15 +129,44 @@ class MachineServiceTest extends TestCase
     public function test_it_does_not_continue_if_account_number_not_valid()
     {
         $this->expectException(InvalidAccountNumberException::class);
+        $machine = Machine::factory()->create();
+        $customer = Customer::factory()->make([
+            'account_number' => 99999999,
+        ]);
+        $customer->save();
+
+        $this->mock(MachineRepository::class);
+        $this->mock(CustomerRepository::class);
+
+        $unit = $this->app->make(MachineServiceInterface::class);
+        $unit->login(11111111, 5555);
     }
 
     public function test_it_does_not_dispense_funds_if_pin_is_incorrect()
     {
-        $this->expectException(InvalidPinException::class);
-    }
+        $this->expectException(InvalidAccountNumberException::class);
+        $machine = Machine::factory()->create();
+        $initialTotalCash = $machine->total_cash;
 
-    public function test_it_does_not_expose_customer_balance_if_pin_is_incorrect()
-    {
-        $this->assertTrue(false, "test not written");
+        $customer = Customer::factory()->make([
+            'account_number' => 99999999,
+        ]);
+        $customer->save();
+
+        $this->mock(
+            MachineRepository::class,
+            function (MockInterface $mock) use ($machine) {
+                $mock->shouldReceive('getMachine')
+                    ->andReturn($machine);
+            });
+
+        $this->mock(CustomerRepository::class);
+
+        $unit = $this->app->make(MachineServiceInterface::class);
+        $unit->login(11111111, 5555);
+        $this->assertEquals($initialTotalCash, $this->machine->refresh()->total_cash);
+
+        $this->expectException(AccountErrorException::class);
+        $unit->withdraw(1000);
     }
 }
