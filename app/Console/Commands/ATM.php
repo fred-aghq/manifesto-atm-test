@@ -2,8 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Services\ATM\MachineService;
+use App\Services\ATM\MachineServiceInterface;
 use Illuminate\Console\Command;
 
+/**
+ * The CLI entrypoint for the ATM service.
+ * @package App\Console\Commands
+ */
 class ATM extends Command
 {
     public const ACCOUNT_ERR = 'ACCOUNT_ERR';
@@ -24,13 +30,22 @@ class ATM extends Command
     protected $description = 'Runs the ATM command-line application.';
 
     /**
+     * The service that provides ATM functionality
+     *
+     * @var MachineService
+     *
+     */
+    private MachineServiceInterface $service;
+
+    /**
      * Create a new command instance.
      *
-     * @return void
+     * @param MachineServiceInterface $atmService
      */
-    public function __construct()
+    public function __construct(MachineServiceInterface $atmService)
     {
         parent::__construct();
+        $this->service = $atmService;
     }
 
     /**
