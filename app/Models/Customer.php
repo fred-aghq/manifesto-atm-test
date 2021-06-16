@@ -13,6 +13,13 @@ class Customer extends Model
 
     protected $hidden = ['pin'];
 
+    protected $fillable = [
+            'account_balance',
+            'overdraft_available',
+            'account_number',
+            'pin',
+        ];
+
     public function getTotalFundsAvailableAttribute()
     {
         return $this->account_balance + $this->overdraft_available;
