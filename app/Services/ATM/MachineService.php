@@ -3,25 +3,22 @@
 namespace App\Services\ATM;
 
 use App\Exceptions\Customer\FundsErrorException;
-use App\Exceptions\Customer\InvalidPinException;
 use App\Exceptions\Customer\InvalidAccountNumberException;
+use App\Exceptions\Customer\InvalidPinException;
 use App\Exceptions\Machine\MachineErrorException;
 use App\Models\Customer;
-use App\Models\Machine;
-use App\Models\Machine as MachineModel;
 use App\Repositories\CustomerRepository;
 use App\Repositories\MachineRepository;
-use Orkhanahmadov\EloquentRepository\EloquentRepository;
+use App\Rules\ValidPin;
+use Illuminate\Support\Facades\Validator;
 
 class MachineService implements MachineServiceInterface
 {
-    public const ACCOUNT_ERR = 'ACCOUNT_ERR';
-    public const FUNDS_ERR = 'FUNDS_ERR';
-    public const ATM_ERR = 'ATM_ERR';
-    public const WITHDRAWAL_SUCCESS = 'WITHDRAWAL_SUCCESS';
+
 
     private CustomerRepository $customerRepo;
     private MachineRepository $machineRepo;
+    private Customer $customer;
 
     public function __construct(MachineRepository $machineRepository, CustomerRepository $customerRepository)
     {
@@ -29,41 +26,68 @@ class MachineService implements MachineServiceInterface
         $this->customerRepo = $customerRepository;
     }
 
-    public function withdrawCash(int $amount){
-        $this->validateWithdrawal($amount);
-    }
-
-    public function getAccountBalance(): int {
-        // @TODO: retrieve customer balance from db
-        return 500;
-    }
-    public function getOverdraftAvailability(): int {
-        // @TODO: retrieve customer overdraft from db
-        return 100;
-    }
-
-    public function validatePin(int $pin) {
-        throw new InvalidPinException();
-    }
-
-    public function validateAccountNumber(int $accountNumber) {
-
-    }
-
-    public function validateLogin(int $accountNumber, int $pin) {
-        return (
-            $this->validateAccountNumber($accountNumber)
-            && $this->validatePin($pin)
-        );
-    }
-
-    public function validateWithdrawal(int $amount)
+    public function withdrawCash(int $amount)
     {
+
+    }
+
+    private function validateAccountNumber(int $accountNumber)
+    {
+        $accountNumberValidator = Validator::make(['account_number' => $accountNumber], [
+            'account_number' => [
+                'required',
+                'bail',
+                'size:8',
+                'exists:customers,account_number'
+            ],
+        ]);
+
+        return !$accountNumberValidator->fails();
+    }
+
+    private function validatePin(Customer $customer, int $pin)
+    {
+        $pinValidator = Validator::make(['pin' => $pin], [
+            'pin' => [
+                'required',
+                'bail',
+                'size:4',
+                new ValidPin($customer),
+            ],
+        ]);
+
+        return !$pinValidator->fails();
+    }
+
+    public function login(int $accountNumber, int $pin): bool
+    {
+        if (!$this->validateAccountNumber($accountNumber)) {
+            throw new InvalidAccountNumberException();
+        }
+
+        $customer = $this->customerRepo->findByAccountNumber($accountNumber);
+
+        if ($this->validatePin($customer, $pin)) {
+            $this->customer = $customer;
+            return true;
+        }
+
+        return false;
+    }
+
+    private function validateWithdrawal(int $amount): bool
+    {
+        if (!$this->customer) {
+            throw new MachineErrorException();
+        }
+
         if ($this->getTotalCashAvailable() < $amount) {
             throw new MachineErrorException();
         }
 
-        throw new FundsErrorException();
+        if ($this->customer->totalFundsAvailable < $amount) {
+            throw new FundsErrorException();
+        }
     }
 
     public function getTotalCashAvailable(): int
