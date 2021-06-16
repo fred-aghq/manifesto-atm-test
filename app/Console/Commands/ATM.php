@@ -70,7 +70,12 @@ class ATM extends Command
 
             $action = $this->choice(
                 'Select an operation',
-                ['(B)alance enquiry', '(W)ithdraw cash', '(E)xit']
+                [
+                    'B' => 'Balance enquiry',
+                    'W' => 'Withdraw cash',
+                    'D' => 'Different Account',
+                    'E' => 'Exit',
+                ]
             );
 
             switch ($action) {
@@ -79,6 +84,8 @@ class ATM extends Command
                     break;
                 case 'W':
                     $this->withdrawCash();
+                    break;
+                case 'D':
                     break;
                 case 'E':
                     return 0;
