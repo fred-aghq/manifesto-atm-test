@@ -11,6 +11,6 @@ class MachineRepository extends EloquentRepository
 
      public function getMachine()
      {
-         return $this->all()->first();
+         return $this->get()->first();
      }
 }

@@ -64,7 +64,8 @@ class MachineServiceTest extends TestCase
     public function test_it_does_not_dispense_funds_if_pin_is_incorrect()
     {
         $customer = Customer::factory()->create();
-
+        $unit = App::make(MachineServiceInterface::class);
+        $this->expectException();
 
     }
 
