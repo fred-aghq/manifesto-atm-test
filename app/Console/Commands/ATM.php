@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\Customer\InvalidAccountNumberException;
+use App\Exceptions\Customer\InvalidPinException;
 use App\Services\ATM\MachineService;
 use App\Services\ATM\MachineServiceInterface;
 use Illuminate\Console\Command;
@@ -64,7 +66,7 @@ class ATM extends Command
 
             $inputPin = $this->secret('Enter PIN');
 
-            $this->service->validateLogin($inputAccountNumber, $inputPin);
+            $this->service->login($inputAccountNumber, $inputPin);
 
             $this->line($this->balanceEnquiry());
 
