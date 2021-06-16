@@ -21,5 +21,13 @@ class DatabaseSeeder extends Seeder
         }
 
         Machine::factory()->create();
+
+        Customer::factory([
+            'account_number' => 12345678,
+            'pin' => 1234,
+            'account_balance' => 500,
+            'overdraft_available' => 100,
+        ])
+        ->create();
     }
 }
