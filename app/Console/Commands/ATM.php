@@ -12,9 +12,6 @@ use Illuminate\Console\Command;
  */
 class ATM extends Command
 {
-    public const ACCOUNT_ERR = 'ACCOUNT_ERR';
-    public const FUNDS_ERR = 'FUNDS_ERR';
-    public const ATM_ERR = 'ATM_ERR';
     /**
      * The name and signature of the console command.
      *
@@ -55,6 +52,49 @@ class ATM extends Command
      */
     public function handle()
     {
-        $this->line('hello world!');
+        do {
+            $this->line($this->service->getTotalCashAvailable());
+            $this->line('');
+
+            $inputAccountNumber = $this->ask('Enter account number');
+
+            if (empty($inputAccountNumber)) {
+                return 0;
+            }
+
+            $inputPin = $this->secret('Enter PIN');
+
+            $this->service->validateLogin($inputAccountNumber, $inputPin);
+
+            $this->line($this->balanceEnquiry());
+
+            $action = $this->choice(
+                'Select an operation',
+                ['(B)alance enquiry', '(W)ithdraw cash', '(E)xit']
+            );
+
+            switch ($action) {
+                case 'B':
+                    $this->balanceEnquiry();
+                    break;
+                case 'W':
+                    $this->withdrawCash();
+                    break;
+                case 'E':
+                    return 0;
+            }
+        } while (true);
+    }
+
+    private function balanceEnquiry()
+    {
+        return $this->service->getAccountBalance() . ' ' . $this->service->getOverdraftAvailability();
+    }
+
+    private function withdrawCash()
+    {
+        $amount = $this->ask('Withdrawal amount');
+        $this->service->withdrawCash($amount);
+        return 0;
     }
 }
