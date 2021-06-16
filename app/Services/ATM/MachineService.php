@@ -48,10 +48,10 @@ class MachineService implements MachineServiceInterface
 
     public function getTotalCashAvailable(): int
     {
-        return $this->machineRepo->getMachine()->total_cash;
+        return $this->getMachine()->total_cash;
     }
 
-    public function withdrawCash(int $amount): bool
+    public function withdrawCash(int $amount): int
     {
         if (!$this->customer) {
             throw new AccountErrorException();
@@ -64,10 +64,10 @@ class MachineService implements MachineServiceInterface
             $this->customer->account_balance -= $amount;
             $machine->save();
             $this->customer->save();
-            return true;
+            return $amount;
         }
 
-        return false;
+        return 0;
     }
 
     private function validateWithdrawal(int $amount): bool
