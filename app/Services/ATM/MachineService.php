@@ -8,6 +8,11 @@ use App\Exceptions\Machine\MachineErrorException;
 
 class MachineService implements MachineServiceInterface
 {
+    public const ACCOUNT_ERR = 'ACCOUNT_ERR';
+    public const FUNDS_ERR = 'FUNDS_ERR';
+    public const ATM_ERR = 'ATM_ERR';
+    public const WITHDRAWAL_SUCCESS = 'WITHDRAWAL_SUCCESS';
+
     public function withdrawCash(int $amount){
         $this->validateWithdrawal($amount);
     }
