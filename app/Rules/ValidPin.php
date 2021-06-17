@@ -8,7 +8,6 @@ use Illuminate\Contracts\Validation\Rule;
 class ValidPin implements Rule
 {
     private Customer $customer;
-    private int $pin;
 
     /**
      * Create a new rule instance.
@@ -29,7 +28,7 @@ class ValidPin implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->customer->pin === $value;
+        return (int) $this->customer->pin === (int) $value;
     }
 
     /**

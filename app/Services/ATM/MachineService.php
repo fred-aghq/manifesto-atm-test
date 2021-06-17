@@ -12,6 +12,7 @@ use App\Models\Machine;
 use App\Repositories\CustomerRepository;
 use App\Repositories\MachineRepository;
 use App\Rules\ValidPin;
+use Cassandra\Custom;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -90,6 +91,11 @@ class MachineService implements MachineServiceInterface
         return $this->customer->overdraft_available;
     }
 
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
     private function validateWithdrawal(int $amount): bool
     {
         if ($this->getTotalCashAvailable() < $amount) {
@@ -107,11 +113,10 @@ class MachineService implements MachineServiceInterface
     {
         $accountNumberValidator = Validator::make(['account_number' => $accountNumber], [
             'account_number' => [
+                'exists:customers,account_number',
                 'required',
-                'bail',
                 'numeric',
                 'digits:8',
-                'exists:customers,account_number'
             ],
         ]);
 
@@ -123,12 +128,12 @@ class MachineService implements MachineServiceInterface
         $pinValidator = Validator::make(['pin' => $pin], [
             'pin' => [
                 'required',
-                'bail',
                 'numeric',
                 'digits:4',
                 new ValidPin($customer),
             ],
         ]);
+
 
         return !$pinValidator->fails();
     }

@@ -216,7 +216,7 @@ class MachineServiceTest extends TestCase
         $this->assertEquals(-100, $customer->refresh()->account_balance);
     }
 
-    public function test_it_does_not_dispense_funds_if_it_exceeds_overdraft()
+    public function test_it_does_not_dispense_funds_if_it_exceeds_customer_overdraft()
     {
         $machine = Machine::factory()->create();
         $customer = Customer::factory()->make([
@@ -258,7 +258,7 @@ class MachineServiceTest extends TestCase
         // The expected exception is thrown
     }
 
-    public function test_it_does_not_dispense_funds_if_it_has_no_overdraft()
+    public function test_it_does_not_dispense_funds_if_customer_has_no_overdraft_and_zero_balance()
     {
         $machine = Machine::factory()->create();
         $customer = Customer::factory()->make([
