@@ -42,10 +42,25 @@ This will seed customer accounts that suit the spec.
 > When running the seeder, the two test accounts `12345678` and `87654321` will be reset to their initial states as per the 
 > test spec.
 
-> 
 
 ## Running The Main App
 1. `docker-compose exec app php artisan manifesto:atm`
+
+If the ATM has not been initialised with cash, you will prompted to enter a value.
+
+The application will request for login details. The following test accounts are created when seeded (See installation 
+section):
+
+> `12345678` / `1234`
+> `87654321` / `4321`
+ 
+Upon successful login, the application accepts the following characters as an option:
+```
+W - Withdraw
+B - Show Balance
+D - Login as a different account
+E - exit
+```
 
 ## Helper/Admin methods
 - `docker-compose exec app php artisan manifesto:atm:cash`
