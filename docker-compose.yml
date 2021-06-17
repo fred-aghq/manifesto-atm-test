@@ -6,6 +6,7 @@ services:
       dockerfile: ./docker/app/Dockerfile
     volumes:
       - .:/app
+      - /app/vendor
     ports:
       - 8000:8000
   database:

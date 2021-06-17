@@ -2,7 +2,7 @@
 Did I overengineer the heck out of this? I sure did! 
 
 The test spec felt somewhat like Laravel would make things a bit too easy, and invite itself to lazy coding, so I've made an effort 
-to show off both my knowledge of Laravel and  approach to cleaner coding. I had the time to have a mini-hackathon and had
+to show off both my knowledge of Laravel and approach to clean code. I had the time to have a mini-hackathon and had
 some fun with it.
 
 This application is dockerised, including a mysql container (with an ephemeral volume).
@@ -45,9 +45,16 @@ There are a couple of helper commands included to update/persist new customer da
 1. `docker-compose exec app composer test`
 
 ## Nice to haves I thought about
+- Building composer dependencies into the image rather than installing at runtime - this got a bit fiddly and I didn't 
+  want to spend far too much time on it.
+  
 - multiple accounts per customer, e.g. Customer HasMany Account
+  
 - multiple machines
+  
 - feature testing the actual CLI entrypoint with provided laravel test helpers - I tried but weird PHPUnit errors ate 
   into a load of time.
+  
 - more user-friendly helper commands (though this was way out of scope, so basic validation and errors will have to do)
+  
 - Better automated codesniffer fixing. I added the laravel-rules to have at least *some* sort of code sniffing/linting.

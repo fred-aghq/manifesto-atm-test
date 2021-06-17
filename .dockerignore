@@ -1,0 +1,3 @@
+docker/app/Dockerfile
+docker-compose.yml
+vendor/
