@@ -14,6 +14,7 @@
         "orkhanahmadov/eloquent-repository": "^2.4"
     },
     "require-dev": {
+        "emielmolenaar/phpcs-laravel": "^2.1",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",

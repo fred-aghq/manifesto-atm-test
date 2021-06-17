@@ -9,7 +9,8 @@ class CustomerRepository extends EloquentRepository
 {
      protected $entity = Customer::class;
 
-     public function findByAccountNumber(int $accountNumber) {
-         return $this->getWhereFirst('account_number', $accountNumber);
+     public function findByAccountNumber(int $accountNumber)
+     {
+		return $this->getWhereFirst('account_number', $accountNumber);
      }
 }

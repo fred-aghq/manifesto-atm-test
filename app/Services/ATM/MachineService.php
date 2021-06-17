@@ -12,8 +12,6 @@ use App\Models\Machine;
 use App\Repositories\CustomerRepository;
 use App\Repositories\MachineRepository;
 use App\Rules\ValidPin;
-use Cassandra\Custom;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class MachineService implements MachineServiceInterface

@@ -71,8 +71,7 @@ class AddOrUpdateCustomer extends Command
             ]
         ])->fails();
 
-        if ($valid)
-        {
+        if ($valid) {
             $customer = Customer::where(['account_number' => $accountNumber])->first() ?? new Customer();
             $customer->pin = $pin;
             $customer->fill([

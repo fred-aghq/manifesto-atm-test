@@ -46,8 +46,7 @@ class UpdateMachineTotalCash extends Command
         ])
         ->fails();
 
-        if ($valid)
-        {
+        if ($valid) {
             $machine = Machine::firstOrCreate();
             $machine->total_cash = $cash;
             $machine->save();

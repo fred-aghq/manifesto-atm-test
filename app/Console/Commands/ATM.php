@@ -6,7 +6,6 @@ use App\Models\Machine;
 use App\Services\ATM\MachineService;
 use App\Services\ATM\MachineServiceInterface;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 /**
  * The CLI entrypoint for the ATM service.
@@ -59,7 +58,7 @@ class ATM extends Command
         }
         do {
             try {
-                if(!$this->checkLogin()) {
+                if (!$this->checkLogin()) {
                     return 0;
                 }
                 $this->line($this->balanceEnquiry());

@@ -3,7 +3,6 @@
 
 namespace App\Services\ATM;
 
-
 interface MachineServiceInterface
 {
     public const ACCOUNT_ERR = 'ACCOUNT_ERR';
