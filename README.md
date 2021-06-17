@@ -70,6 +70,7 @@ E - exit
 - `docker-compose exec app composer fix:style`
 
 ## Nice to haves I thought about
+- Better use of Laravel's exception handling, though I found it rather tough to utilise this in a CLI context.
 - Building composer dependencies into the image rather than installing at runtime - this got a bit fiddly and I didn't 
   want to spend far too much time on it.
   
