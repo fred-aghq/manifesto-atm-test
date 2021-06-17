@@ -33,7 +33,6 @@ The stack will build itself, the app entrypoint will generate Laravel keys
    
 This will seed customer accounts that suit the spec.
 
-
 > You can optionally choose not to include `--seed`. When first running the ATM command, it'll request an amount of cash with which
 > it should be initialised.
 > 
@@ -41,7 +40,6 @@ This will seed customer accounts that suit the spec.
 > 
 > When running the seeder, the two test accounts `12345678` and `87654321` will be reset to their initial states as per the 
 > test spec.
-
 
 ## Running The Main App
 1. `docker-compose exec app php artisan manifesto:atm`
