@@ -16,12 +16,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        if (Machine::all()->count() > 0) {
-            DB::table((new Machine())->getTable())->truncate();
-        }
-
-        Machine::factory()->create();
-
         Customer::whereIn('account_number', [12345678, 87654321])->delete();
 
         Customer::factory([
