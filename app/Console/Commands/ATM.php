@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Exceptions\Customer\InvalidAccountNumberException;
-use App\Exceptions\Customer\InvalidPinException;
 use App\Models\Machine;
 use App\Services\ATM\MachineService;
 use App\Services\ATM\MachineServiceInterface;
@@ -60,21 +58,15 @@ class ATM extends Command
             $this->initialiseMachine();
         }
         do {
-            if (!$this->service->loggedIn())
-            {
-                $inputAccountNumber = $this->ask('Enter account number');
-
-                if (empty($inputAccountNumber)) {
+            try {
+                if(!$this->checkLogin()) {
                     return 0;
                 }
-
-                $inputPin = $this->ask('Enter PIN');
-
-                $this->service->login($inputAccountNumber, $inputPin);
-                $this->line("{$this->accountDetails()} {$inputPin}");
+                $this->line($this->balanceEnquiry());
+            } catch (\Exception $exception) {
+                $this->printError($exception->getMessage());
+                continue;
             }
-
-            $this->line($this->balanceEnquiry());
 
             $action = $this->choice(
                 'Select an operation',
@@ -86,15 +78,21 @@ class ATM extends Command
                 ]
             );
 
-            $action = Str::upper($action);
-
             switch ($action) {
                 case 'B':
-                    $this->balanceEnquiry();
+                    try {
+                        $this->line($this->balanceEnquiry());
+                    } catch (\Exception $exception) {
+                        $this->printError($exception->getMessage());
+                    }
                     break;
                 case 'W':
-                    $this->withdrawCash();
-                    $this->line($this->service->getCustomerBalance());
+                    try {
+                        $this->withdrawCash();
+                        $this->line($this->service->getCustomerBalance());
+                    } catch (\Exception $exception) {
+                        $this->printError($exception->getMessage());
+                    }
                     break;
                 case 'D':
                     $this->service->logout();
@@ -136,5 +134,33 @@ class ATM extends Command
         $machine->total_cash = floor($totalCash);
         $machine->save();
         return true;
+    }
+
+    private function checkLogin()
+    {
+        if (!$this->service->loggedIn()) {
+            $inputAccountNumber = $this->ask('Enter account number');
+
+            if (empty($inputAccountNumber)) {
+                return 0;
+            }
+
+            $inputPin = $this->ask('Enter PIN');
+
+            $this->service->login($inputAccountNumber, $inputPin);
+            $this->line("{$this->accountDetails()} {$inputPin}");
+            return true;
+        }
+    }
+
+    private function printError(string $errorMessage)
+    {
+        $this->error($errorMessage);
+    }
+
+    private function exitWithError(\Exception $exception)
+    {
+        $this->printError($exception->getMessage());
+        return 1;
     }
 }
