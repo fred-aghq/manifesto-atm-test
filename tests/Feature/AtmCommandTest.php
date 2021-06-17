@@ -19,4 +19,12 @@ class AtmCommandTest extends TestCase
         DB::table('customers')->truncate();
         parent::tearDown();
     }
+
+    public function test_it_requires_machine_initialisation_if_no_machine_set()
+    {
+        $this->artisan('manifesto:atm')
+            ->expectsQuestion('Initialise ATM total cash', 10000)
+            ->expectsQuestion('Enter account number', '')
+            ->assertExitCode(0);
+    }
 }
