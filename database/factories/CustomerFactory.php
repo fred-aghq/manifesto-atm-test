@@ -51,7 +51,7 @@ class CustomerFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'overdraft_avaliable' => 50,
+                'overdraft_available' => 50,
                 'account_balance' => -25,
             ];
         });
@@ -61,7 +61,7 @@ class CustomerFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'overdraft_avaliable' => 50,
+                'overdraft_available' => 50,
                 'account_balance' => -50,
             ];
         });
