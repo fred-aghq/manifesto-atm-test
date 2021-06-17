@@ -44,6 +44,11 @@ There are a couple of helper commands included to update/persist new customer da
 ## Testing
 1. `docker-compose exec app composer test`
 
+## Code Sniffing/Linting
+- `docker-compose exec app composer test:style`
+  
+- `docker-compose exec app composer fix:style`
+
 ## Nice to haves I thought about
 - Building composer dependencies into the image rather than installing at runtime - this got a bit fiddly and I didn't 
   want to spend far too much time on it.
