@@ -23,15 +23,9 @@ There are a couple of helper commands included to update/persist new customer da
 > e.g. `docker-compose exec app sh`, then `php artisan` from there.
  
 
-1. `cp .env.example .env` 
-   
-.env is gitignored to protect sensitive values
-2. `docker-compose up -d --build` 
-   
-The stack will build itself, the app entrypoint will generate Laravel keys
-3. `docker-compose exec app php artisan migrate --seed`
-   
-This will seed customer accounts that suit the spec.
+1. `cp .env.example .env` - .env is gitignored to protect sensitive values
+2. `docker-compose up -d --build` - Stack builds itself, app entrypoint generates Laravel keys
+3. `docker-compose exec app php artisan migrate --seed` - Seeds customer accounts that suit the spec.
 
 > You can optionally choose not to include `--seed`. When first running the ATM command, it'll request an amount of cash with which
 > it should be initialised.
