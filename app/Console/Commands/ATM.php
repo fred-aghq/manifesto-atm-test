@@ -138,7 +138,7 @@ class ATM extends Command
     private function checkLogin()
     {
         if (!$this->service->loggedIn()) {
-            $inputAccountNumber = $this->ask('Enter account number');
+            $inputAccountNumber = $this->ask('Enter account number (leave blank and press enter to exit)');
 
             if (empty($inputAccountNumber)) {
                 return 0;

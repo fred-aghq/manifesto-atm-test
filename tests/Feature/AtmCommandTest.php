@@ -24,7 +24,7 @@ class AtmCommandTest extends TestCase
     {
         $this->artisan('manifesto:atm')
             ->expectsQuestion('Initialise ATM total cash', 10000)
-            ->expectsQuestion('Enter account number', '')
+            ->expectsQuestion('Enter account number (leave blank and press enter to exit)', '')
             ->assertExitCode(0);
     }
 }
