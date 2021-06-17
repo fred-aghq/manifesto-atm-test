@@ -148,8 +148,8 @@ class ATM extends Command
 
             $this->service->login($inputAccountNumber, $inputPin);
             $this->line("{$this->accountDetails()} {$inputPin}");
-            return true;
         }
+        return true;
     }
 
     private function printError(string $errorMessage)
